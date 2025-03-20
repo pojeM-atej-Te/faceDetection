@@ -28,6 +28,53 @@ def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj) -> tuple:
       Način izračuna je prepuščen vaši domišljiji.'''
     pass
 
+def main():
+    # Initialize the camera
+    cap = cv.VideoCapture(0)
+    if not cap.isOpened():
+        print("Error: Could not open camera.")
+        return
+
+    # Define the size of the region of interest (ROI)
+    roi_width = 200
+    roi_height = 200
+
+    while True:
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Could not read frame.")
+            break
+
+        frame = cv.flip(frame, 90)
+        # Get the dimensions of the frame
+        frame_height, frame_width = frame.shape[:2]
+
+        # Calculate the center of the frame
+        center_x, center_y = frame_width // 2, frame_height // 2
+
+        # Define the ROI start and end points
+        roi_start = (center_x - roi_width // 2, center_y - roi_height // 2)
+        roi_end = (center_x + roi_width // 2, center_y + roi_height // 2)
+
+        # Draw the rectangle on the frame
+        cv.rectangle(frame, roi_start, roi_end, (0, 255, 0), 2)
+
+        # Display the resulting frame
+        cv.imshow('Camera', frame)
+
+        # Wait for key press
+        key = cv.waitKey(1) & 0xFF
+        if key == ord('r'):
+            # Capture the image within the ROI
+            roi = frame[roi_start[1]:roi_end[1], roi_start[0]:roi_end[0]]
+            cv.imshow('Captured Image', roi)
+        elif key == 27:  # Escape key
+            break
+
+    # Release the camera and close all OpenCV windows
+    cap.release()
+    cv.destroyAllWindows()
 
 if __name__ == '__main__':
     #Pripravi kamero
@@ -44,4 +91,4 @@ if __name__ == '__main__':
 
     # Kako velikost prebirne škatle vpliva na hitrost algoritma in točnost detekcije? Poigrajte se s parametroma velikost_skatle
     # in ne pozabite, da ni nujno da je škatla kvadratna.
-    pass
+    main()
