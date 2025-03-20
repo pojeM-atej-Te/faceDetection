@@ -4,8 +4,7 @@ import numpy as np
 
 def zmanjsaj_sliko(slika, sirina, visina):
     '''Zmanjšaj sliko na velikost sirina x visina.'''
-    pass
-
+    return cv.resize(slika, (sirina, visina))
 
 def obdelaj_sliko_s_skatlami(slika, sirina_skatle, visina_skatle, barva_koze) -> list:
     '''Sprehodi se skozi sliko v velikosti škatle (sirina_skatle x visina_skatle) in izračunaj število pikslov kože v vsaki škatli.
@@ -46,7 +45,9 @@ def main():
             print("Error: Could not read frame.")
             break
 
+        frame = zmanjsaj_sliko(frame, 220, 340)
         frame = cv.flip(frame, 90)
+
         # Get the dimensions of the frame
         frame_height, frame_width = frame.shape[:2]
 
