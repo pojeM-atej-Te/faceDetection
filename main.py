@@ -95,8 +95,21 @@ def main():
         if key == ord('r'):
             # Capture the image within the ROI
             roi = frame[roi_start[1]:roi_end[1], roi_start[0]:roi_end[0]]
-            cv.imshow('Captured Image', roi)
-        elif key == 27:  # Escape key
+
+            # Calculate the skin color in the ROI
+            spodnja_meja, zgornja_meja = doloci_barvo_koze(frame, roi_start, roi_end)
+            print(f"Spodnja meja barve kože: {spodnja_meja}")
+            print(f"Zgornja meja barve kože: {zgornja_meja}")
+
+            # Overlay the captured ROI on the original frame
+            frame[roi_start[1]:roi_end[1], roi_start[0]:roi_end[0]] = roi
+
+            # Display the captured image
+            cv.imshow('Captured Image', frame)
+            cv.waitKey(0)  # Wait indefinitely until a key is pressed
+            break  # Exit the loop after capturing the image
+
+        if key == 27:  # Escape key
             break
 
     # Release the camera and close all OpenCV windows
@@ -104,18 +117,4 @@ def main():
     cv.destroyAllWindows()
 
 if __name__ == '__main__':
-    #Pripravi kamero
-
-    # Zajami prvo sliko iz kamere
-
-    # Izračunamo barvo kože na prvi sliki
-
-    # Zajemaj slike iz kamere in jih obdeluj
-
-    # Označi območja (škatle), kjer se nahaja obraz (kako je prepuščeno vaši domišljiji)
-    # Vprašanje 1: Kako iz števila pikslov iz vsake škatle določiti celotno območje obraza (Floodfill)?
-    # Vprašanje 2: Kako prešteti število ljudi?
-
-    # Kako velikost prebirne škatle vpliva na hitrost algoritma in točnost detekcije? Poigrajte se s parametroma velikost_skatle
-    # in ne pozabite, da ni nujno da je škatla kvadratna.
     main()
