@@ -21,11 +21,37 @@ def prestej_piklse_z_barvo_koze(slika, barva_koze) -> int:
     pass
 
 
-def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj) -> tuple:
-    '''Ta funkcija se kliče zgolj 1x na prvi sliki iz kamere.
-    Vrne barvo kože v območju ki ga definira oklepajoča škatla (levo_zgoraj, desno_spodaj).
-      Način izračuna je prepuščen vaši domišljiji.'''
-    pass
+def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
+    """
+    Izračuna spodnje in zgornje meje barve kože na izbranem območju slike.
+
+    Args:
+        slika: 3D tabela/polje tipa np.ndarray
+        levo_zgoraj: tuple (x,y), ki vsebuje skrajno zgornjo levo koordinato oklepajočega kvadrata obraza
+        desno_spodaj: tuple (x,y), ki vsebuje skrajno spodnjo desno koordinato oklepajočega kvadrata obraza
+
+    Returns:
+        tuple (spodnja_meja, zgornja_meja): Spodnja in zgornja meja barve kože (np.ndarray)
+    """
+    # Izreži območje obraza iz slike
+    x1, y1 = levo_zgoraj
+    x2, y2 = desno_spodaj
+
+    # Preveri pravilnost koordinat
+    if x1 > x2 or y1 > y2:
+        raise ValueError("Nepravilne koordinate: levo_zgoraj mora biti nad in levo od desno_spodaj")
+
+    obraz = slika[y1:y2, x1:x2]
+
+    # Izračunaj povprečje barve kože v BGR prostoru
+    mean_color = np.mean(obraz, axis=(0, 1))
+
+    # Določi meje barve kože (povprečje +/- 40%)
+    margin = 0.4
+    spodnja_meja = np.maximum(mean_color * (1 - margin), 0).astype(np.uint8)
+    zgornja_meja = np.minimum(mean_color * (1 + margin), 255).astype(np.uint8)
+
+    return (spodnja_meja, zgornja_meja)
 
 def main():
     # Initialize the camera
