@@ -6,15 +6,35 @@ def zmanjsaj_sliko(slika, sirina, visina):
     '''Zmanjšaj sliko na velikost sirina x visina.'''
     return cv.resize(slika, (sirina, visina))
 
+
 def obdelaj_sliko_s_skatlami(slika, sirina_skatle, visina_skatle, barva_koze) -> list:
     '''Sprehodi se skozi sliko v velikosti škatle (sirina_skatle x visina_skatle) in izračunaj število pikslov kože v vsaki škatli.
     Škatle se ne smejo prekrivati!
     Vrne seznam škatel, s številom pikslov kože.
     Primer: Če je v sliki 25 škatel, kjer je v vsaki vrstici 5 škatel, naj bo seznam oblike
-      [[1,0,0,1,1],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[1,0,0,0,1]].
-      V tem primeru je v prvi škatli 1 piksel kože, v drugi 0, v tretji 0, v četrti 1 in v peti 1.'''
-    pass
+      [[1,0,0,1,1],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[1,0,0,0,1]].'''
 
+    # Initialize the list to store the number of skin pixels in each box
+    skatle = []
+
+    # Get the dimensions of the image
+    visina_slike, sirina_slike = slika.shape[:2]
+
+    # Loop through the image in steps of the box size
+    for y in range(0, visina_slike, visina_skatle):
+        vrstica = []
+        for x in range(0, sirina_slike, sirina_skatle):
+            # Define the current box
+            skatla = slika[y:y + visina_skatle, x:x + sirina_skatle]
+
+            # Count the number of skin color pixels in the current box
+            st_pikslov_koze = prestej_piklse_z_barvo_koze(skatla, barva_koze)
+            vrstica.append(st_pikslov_koze)
+
+        # Append the row to the list of boxes
+        skatle.append(vrstica)
+
+    return skatle
 
 def prestej_piklse_z_barvo_koze(slika, barva_koze) -> int:
     '''Prestej število pikslov z barvo kože v škatli.'''
