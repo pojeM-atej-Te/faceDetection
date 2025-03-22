@@ -1,7 +1,6 @@
 import cv2 as cv
 import numpy as np
 
-
 def zmanjsaj_sliko(slika, sirina, visina):
     '''Zmanjšaj sliko na velikost sirina x visina.'''
     return cv.resize(slika, (sirina, visina))
@@ -36,9 +35,20 @@ def obdelaj_sliko_s_skatlami(slika, sirina_skatle, visina_skatle, barva_koze) ->
 
     return skatle
 
-def prestej_piklse_z_barvo_koze(slika, barva_koze) -> int:
+def prestej_piklse_z_barvo_koze(skatla, barva_koze) -> int:
     '''Prestej število pikslov z barvo kože v škatli.'''
-    pass
+    spodnja_meja, zgornja_meja = barva_koze
+
+    # Ustvari masko z vrednostmi 1 za piksle v intervalu barve kože
+    maska = cv.inRange(skatla, spodnja_meja, zgornja_meja)
+
+    # Uporabi morfološke operacije za odstranjevanje šuma
+    kernel = np.ones((5, 5), np.uint8)
+    maska = cv.morphologyEx(maska, cv.MORPH_OPEN, kernel)
+    maska = cv.morphologyEx(maska, cv.MORPH_CLOSE, kernel)
+
+    # Preštej število pikslov
+    return cv.countNonZero(maska)
 
 
 def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
