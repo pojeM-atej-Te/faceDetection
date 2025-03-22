@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-
+import time
 
 def zmanjsaj_sliko(slika, sirina, visina):
     '''Zmanjšaj sliko na velikost sirina x visina.'''
@@ -36,9 +36,20 @@ def obdelaj_sliko_s_skatlami(slika, sirina_skatle, visina_skatle, barva_koze) ->
 
     return skatle
 
-def prestej_piklse_z_barvo_koze(slika, barva_koze) -> int:
+def prestej_piklse_z_barvo_koze(skatla, barva_koze) -> int:
     '''Prestej število pikslov z barvo kože v škatli.'''
-    pass
+    spodnja_meja, zgornja_meja = barva_koze
+
+    # Ustvari masko z vrednostmi 1 za piksle v intervalu barve kože
+    maska = cv.inRange(skatla, spodnja_meja, zgornja_meja)
+
+    # Uporabi morfološke operacije za odstranjevanje šuma
+    kernel = np.ones((5, 5), np.uint8)
+    maska = cv.morphologyEx(maska, cv.MORPH_OPEN, kernel)
+    maska = cv.morphologyEx(maska, cv.MORPH_CLOSE, kernel)
+
+    # Preštej število pikslov
+    return cv.countNonZero(maska)
 
 
 def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
@@ -74,69 +85,61 @@ def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
     return (spodnja_meja, zgornja_meja)
 
 def main():
-    # Initialize the camera
+    # Inicializacija kamere
     cap = cv.VideoCapture(0)
     if not cap.isOpened():
-        print("Error: Could not open camera.")
+        print("Napaka: Kamera ni na voljo.")
         return
 
-    # Define the size of the region of interest (ROI)
+    # Določitev velikosti območja interesa (ROI)
     roi_width = 200
     roi_height = 200
+    barva_koze = None
+    barva_koze_inicializirana = False
 
     while True:
-        # Capture frame-by-frame
+        # Zajem slike
         ret, frame = cap.read()
         if not ret:
-            print("Error: Could not read frame.")
+            print("Napaka: Ne morem prebrati okvirja.")
             break
 
         frame = zmanjsaj_sliko(frame, 220, 340)
         frame = cv.flip(frame, 90)
-
-        # Get the dimensions of the frame
         frame_height, frame_width = frame.shape[:2]
-
-        # Calculate the center of the frame
         center_x, center_y = frame_width // 2, frame_height // 2
-
-        # Define the ROI start and end points
         roi_start = (center_x - roi_width // 2, center_y - roi_height // 2)
         roi_end = (center_x + roi_width // 2, center_y + roi_height // 2)
 
-        # Draw the rectangle on the frame
-        cv.rectangle(frame, roi_start, roi_end, (0, 255, 0), 2)
+        if not barva_koze_inicializirana:
+            # Izriši pravokotnik za določitev barve kože
+            cv.rectangle(frame, roi_start, roi_end, (0, 255, 0), 2)
+            cv.putText(frame, "Poravnajte obraz in pritisnite 'r'", (10, frame_height - 10), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
+        else:
+            # Obdelava slike s škatlami
+            start_time = time.time()
+            skatle = obdelaj_sliko_s_skatlami(frame, 50, 50, barva_koze)
+            for y, vrstica in enumerate(skatle):
+                for x, st_pikslov in enumerate(vrstica):
+                    if st_pikslov > 0:
+                        cv.rectangle(frame, (x * 50, y * 50), ((x + 1) * 50, (y + 1) * 50), (0, 255, 0), 2)
+            processing_time = time.time() - start_time
+            cv.putText(frame, f"Cas obdelave: {processing_time * 1000:.1f} ms", (10, 50), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
 
-        # Display the resulting frame
-        cv.imshow('Camera', frame)
+        cv.imshow('Kamera', frame)
 
-        # Wait for key press
         key = cv.waitKey(1) & 0xFF
         if key == ord('r'):
-            # Capture the image within the ROI
+            # Zajem slike znotraj ROI
             roi = frame[roi_start[1]:roi_end[1], roi_start[0]:roi_end[0]]
-
-            # Calculate the skin color in the ROI
             spodnja_meja, zgornja_meja = doloci_barvo_koze(frame, roi_start, roi_end)
+            barva_koze = (spodnja_meja, zgornja_meja)
+            barva_koze_inicializirana = True
             print(f"Spodnja meja barve kože: {spodnja_meja}")
             print(f"Zgornja meja barve kože: {zgornja_meja}")
-
-            # Overlay the captured ROI on the original frame
-            frame[roi_start[1]:roi_end[1], roi_start[0]:roi_end[0]] = roi
-
-            # Process the image with boxes
-            skatle = obdelaj_sliko_s_skatlami(frame, 50, 50, (spodnja_meja, zgornja_meja))
-            print(f"Škatle s številom pikslov kože: {skatle}")
-
-            # Display the captured image
-            cv.imshow('Captured Image', frame)
-            cv.waitKey(0)  # Wait indefinitely until a key is pressed
-            break  # Exit the loop after capturing the image
-
-        if key == 27:  # Escape key
+        if key == 27:
             break
 
-    # Release the camera and close all OpenCV windows
     cap.release()
     cv.destroyAllWindows()
 
