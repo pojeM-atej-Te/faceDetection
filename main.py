@@ -124,6 +124,10 @@ def main():
             # Overlay the captured ROI on the original frame
             frame[roi_start[1]:roi_end[1], roi_start[0]:roi_end[0]] = roi
 
+            # Process the image with boxes
+            skatle = obdelaj_sliko_s_skatlami(frame, 50, 50, (spodnja_meja, zgornja_meja))
+            print(f"Škatle s številom pikslov kože: {skatle}")
+
             # Display the captured image
             cv.imshow('Captured Image', frame)
             cv.waitKey(0)  # Wait indefinitely until a key is pressed
