@@ -79,8 +79,8 @@ def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
 
     # Določi meje barve kože (povprečje +/- 40%)
     margin = 0.4
-    spodnja_meja = np.maximum(mean_color * (1 - margin), 0).astype(np.uint8)
-    zgornja_meja = np.minimum(mean_color * (1 + margin), 255).astype(np.uint8)
+    spodnja_meja = np.maximum(mean_color * (1 - margin), 0).astype(np.uint8).reshape(1, 3)
+    zgornja_meja = np.minimum(mean_color * (1 + margin), 255).astype(np.uint8).reshape(1, 3)
 
     return (spodnja_meja, zgornja_meja)
 
