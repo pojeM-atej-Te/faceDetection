@@ -28,7 +28,7 @@ def obdelaj_sliko_s_skatlami(slika, sirina_skatle, visina_skatle, barva_koze) ->
             skatla = slika[y:y + visina_skatle, x:x + sirina_skatle]
 
             # Count the number of skin color pixels in the current box
-            st_pikslov_koze = prestej_piklse_z_barvo_koze(skatla, barva_koze)
+            st_pikslov_koze = prestej_piksle_z_barvo_koze(skatla, barva_koze)
             vrstica.append(st_pikslov_koze)
 
         # Append the row to the list of boxes
@@ -36,8 +36,8 @@ def obdelaj_sliko_s_skatlami(slika, sirina_skatle, visina_skatle, barva_koze) ->
 
     return skatle
 
-def prestej_piklse_z_barvo_koze(skatla, barva_koze) -> int:
-    '''Prestej število pikslov z barvo kože v škatli.'''
+def prestej_piksle_z_barvo_koze(skatla, barva_koze) -> int:
+    '''Preštej število pikslov z barvo kože v škatli.'''
     spodnja_meja, zgornja_meja = barva_koze
 
     # Ustvari masko z vrednostmi 1 za piksle v intervalu barve kože
