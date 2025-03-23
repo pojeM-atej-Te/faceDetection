@@ -97,6 +97,10 @@ def main():
     barva_koze = None
     barva_koze_inicializirana = False
 
+    prev_time = time.time()
+    frame_count = 0
+    fps = 0
+
     while True:
         # Zajem slike
         ret, frame = cap.read()
@@ -128,6 +132,17 @@ def main():
                         cv.rectangle(frame, (x * 50, y * 50), ((x + 1) * 50, (y + 1) * 50), (0, 255, 0), 2)
             processing_time = time.time() - start_time
             cv.putText(frame, f"Cas obdelave: {processing_time * 1000:.1f} ms", (10, 50), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
+
+        frame_count += 1
+        current_time = time.time()
+        elapsed_time = current_time - prev_time
+        if elapsed_time > 1:
+            fps = frame_count / elapsed_time
+            frame_count = 0
+            prev_time = current_time
+
+        #Izpiše fpsje
+        cv.putText(frame, f"FPS: {fps:.1f}", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
         cv.imshow('Kamera', frame)
 
