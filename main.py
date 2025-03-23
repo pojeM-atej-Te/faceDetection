@@ -80,7 +80,7 @@ def doloci_barvo_koze(slika, levo_zgoraj, desno_spodaj):
     # Določi meje barve kože (povprečje +/- 40%)
     margin = 0.4
     spodnja_meja = np.maximum(mean_color * (1 - margin), 0).astype(np.uint8).reshape(1, 3)
-    zgornja_meja = np.minimum(mean_color * (1 + margin), 255).astype(np.uint8).reshape(1, 3)
+    zgornja_meja = np.minimum(mean_color * (1 + margin), 255).astype(np.uint8).reshape(1,3)
 
     return (spodnja_meja, zgornja_meja)
 
@@ -110,6 +110,9 @@ def main():
         center_x, center_y = frame_width // 2, frame_height // 2
         roi_start = (center_x - roi_width // 2, center_y - roi_height // 2)
         roi_end = (center_x + roi_width // 2, center_y + roi_height // 2)
+
+        sirina_skatle = int(frame_width * 0.2)
+        visina_skatle = int(frame_height * 0.2)
 
         if not barva_koze_inicializirana:
             # Izriši pravokotnik za določitev barve kože
